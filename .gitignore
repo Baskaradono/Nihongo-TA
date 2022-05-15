@@ -3,3 +3,5 @@ user_info.json
 poetry.lock
 pyproject.toml
 replit.nix
+venv/
+__pycache__/
