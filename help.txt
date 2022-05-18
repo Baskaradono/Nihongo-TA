@@ -1,0 +1,5 @@
+t.help - Displays this message!
+t.register - Creates an account to save your data from quizzes!
+t.quiz - Starts a quiz that lets you earn Koinsu for correct answers!
+t.info - Shows the user's data, only works if you have registered an account (see t.register)!
+t.source / t.github - Shows the github link of the bot!

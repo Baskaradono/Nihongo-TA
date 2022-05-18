@@ -32,7 +32,28 @@ def format_timedelta(delta):
     return time_fmt
 
 @bot.command(name="help")
-async def command_help(ctx):pass
+async def command_help(ctx):
+	file = open("help.txt")
+	content = file.readlines();
+	file.close()
+	embed = discord.Embed(title=f"{bot.user.display_name} Commands", description=f"List of usable commands for {bot.user.display_name}", color=BLUE)
+	embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+	embed.set_thumbnail(url=bot.user.avatar_url)
+	for line in content:
+		sections = content.split(" - ")
+		title = sections[0]
+		message = sections[1]
+		embed.add_field(name=title, value=message, inline=False)
+
+	programmers_role = discord.utils.get(ctx.guild.roles, name="Programmers")
+	mod_role = discord.utils.get(ctx.guild.roles, name="Mods")
+	if programmers_role in ctx.author.roles or mod_role in ctx.author.roles:
+		embed.add_field(name="Configure", value=f"Allows the user to configure the behavior of {bot.user.display_name}.")
+		embed.add_field(name="Uptime", value=f"Allows the user to see the up-time of {bot.user.display_name}.")
+	if ctx.author.id in user_info["DEV_IDS"]:
+		embed.add_field(name="Restart", value="Restarts the bot, for development purposes.")
+	embed.set_footer(text=f"Requested by '{ctx.author}'")
+	await ctx.send(embed=embed)
 
 @bot.command(name="register")
 async def command_register(ctx):
@@ -100,8 +121,18 @@ async def command_uptime(ctx):
 	await ctx.send(embed=embed)
 
 @bot.command(name="configure")
-@commands.has_any_role("Programmers", "Teachers", "Mods")
+@commands.has_any_role("Programmers", "Mods")
 async def command_configure(ctx):pass
+
+@bot.command(name="restart")
+async def command_restart(ctx):
+	if str(ctx.author.id) in user_info["DEV_IDS"]:
+		embed = discord.Embed(title=f"{bot.user.display_name} Restart", description=f"{bot.user.display_name} is being restarted on {datetime.now().strftime('%d/%m/%Y on %H:%M:%S')}.", color=RED)
+		embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+		embed.set_thumbnail(url=bot.user.avatar_url)
+		embed.set_footer(text=f"Requested by '{ctx.author}'")
+		await ctx.send(embed=embed)
+		quit(0)
 
 @bot.event
 async def on_message(message):
