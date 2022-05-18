@@ -127,7 +127,7 @@ async def command_configure(ctx):pass
 @bot.command(name="restart")
 async def command_restart(ctx):
 	if str(ctx.author.id) in user_info["DEV_IDS"]:
-		embed = discord.Embed(title=f"{bot.user.display_name} Restart", description=f"{bot.user.display_name} is being restarted on {datetime.now().strftime('%d/%m/%Y on %H:%M:%S')}.", color=RED)
+		embed = discord.Embed(title=f"{bot.user.display_name} Restart", description=f"{bot.user.display_name} is being restarted on {datetime.datetime.now().strftime('%d/%m/%Y on %H:%M:%S')} after an up-time of {format_timedelta(datetime.timedelta(seconds=uptime))}.", color=RED)
 		embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
 		embed.set_thumbnail(url=bot.user.avatar_url)
 		embed.set_footer(text=f"Requested by '{ctx.author}'")
