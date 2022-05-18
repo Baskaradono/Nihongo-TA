@@ -6,10 +6,13 @@ GREEN=0xAAF0D1
 RED=0xFAA0A0
 BLUE=0xA7C7E7
 
+RESTRICTED_USERS = []
+
 bot = commands.Bot("t.", activity=discord.Game(name="t.help"))
 bot.remove_command('help')
 
 user_info = json.load(open("user_info.json"))
+quizzes = json.load(open("quizzes.json"))
 
 def tick_uptime():
 	global uptime
@@ -48,8 +51,8 @@ async def command_help(ctx):
 	programmers_role = discord.utils.get(ctx.guild.roles, name="Programmers")
 	mod_role = discord.utils.get(ctx.guild.roles, name="Mods")
 	if programmers_role in ctx.author.roles or mod_role in ctx.author.roles:
-		embed.add_field(name="Configure", value=f"Allows the user to configure the behavior of {bot.user.display_name}.")
-		embed.add_field(name="Uptime", value=f"Allows the user to see the up-time of {bot.user.display_name}.")
+		embed.add_field(name="t.configure", value=f"Allows the user to configure the behavior of {bot.user.display_name}.")
+		embed.add_field(name="t.uptime", value=f"Allows the user to see the up-time of {bot.user.display_name}.")
 	embed.set_footer(text=f"Requested by '{ctx.author}'")
 	await ctx.send(embed=embed)
 
@@ -73,7 +76,8 @@ async def command_register(ctx):
 	await ctx.send(embed=embed)
 
 @bot.command(name="quiz")
-async def command_quiz(ctx, unit, lesson):pass
+async def command_quiz(ctx, unit, lesson):
+	pass
 
 @bot.command(name="info")
 async def command_info(ctx):
@@ -125,7 +129,7 @@ async def command_configure(ctx):pass
 @bot.event
 async def on_message(message):
 	if message.author == bot.user:return
-	await bot.process_commands(message)
+	if(not message.author.id in RESTRICTED_USERS):await bot.process_commands(message)
 
 @bot.event
 async def on_ready():
