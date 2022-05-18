@@ -40,10 +40,10 @@ async def command_help(ctx):
 	embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
 	embed.set_thumbnail(url=bot.user.avatar_url)
 	for line in content:
-		sections = content.split(" - ")
+		sections = line.split(" - ")
 		title = sections[0]
 		message = sections[1]
-		embed.add_field(name=title, value=message, inline=False)
+		embed.add_field(name=title, value=message)
 
 	programmers_role = discord.utils.get(ctx.guild.roles, name="Programmers")
 	mod_role = discord.utils.get(ctx.guild.roles, name="Mods")
