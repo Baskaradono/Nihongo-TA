@@ -50,8 +50,6 @@ async def command_help(ctx):
 	if programmers_role in ctx.author.roles or mod_role in ctx.author.roles:
 		embed.add_field(name="Configure", value=f"Allows the user to configure the behavior of {bot.user.display_name}.")
 		embed.add_field(name="Uptime", value=f"Allows the user to see the up-time of {bot.user.display_name}.")
-	if ctx.author.id in user_info["DEV_IDS"]:
-		embed.add_field(name="Restart", value="Restarts the bot, for development purposes.")
 	embed.set_footer(text=f"Requested by '{ctx.author}'")
 	await ctx.send(embed=embed)
 
@@ -124,16 +122,6 @@ async def command_uptime(ctx):
 @commands.has_any_role("Programmers", "Mods")
 async def command_configure(ctx):pass
 
-@bot.command(name="restart")
-async def command_restart(ctx):
-	if str(ctx.author.id) in user_info["DEV_IDS"]:
-		embed = discord.Embed(title=f"{bot.user.display_name} Restart", description=f"{bot.user.display_name} is being restarted on {datetime.datetime.now().strftime('%d/%m/%Y on %H:%M:%S')} after an up-time of {format_timedelta(datetime.timedelta(seconds=uptime))}.", color=RED)
-		embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-		embed.set_thumbnail(url=bot.user.avatar_url)
-		embed.set_footer(text=f"Requested by '{ctx.author}'")
-		await ctx.send(embed=embed)
-		quit(0)
-
 @bot.event
 async def on_message(message):
 	if message.author == bot.user:return
@@ -141,7 +129,7 @@ async def on_message(message):
 
 @bot.event
 async def on_ready():
-	print(f"Logged in as '{bot.user}'!")
+	print(f"Logged in as '{bot.user}' at {datetime.datetime.now().strftime('%d/%m/%Y on %H:%M:%S')}!")
 	uptime_thread = threading.Thread(target=tick_uptime)
 	uptime_thread.start()
 
