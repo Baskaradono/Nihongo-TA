@@ -104,7 +104,6 @@ async def command_quiz(ctx, *, unit_and_lesson=""):
 		else:
 			lesson = "unit"
 			questions = gen_unit_quiz(unit)
-	print(questions)
 	if lesson=="unit":embed = discord.Embed(title=f"Started a quiz for Unit {unit}!", description=f"This is the unit quiz for Unit {unit}!", color=BLUE)
 	else:embed = discord.Embed(title=f"Started a quiz for Unit {unit}!", description=f"This is quiz '{lesson}' for Unit {unit}!", color=BLUE)
 	embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
