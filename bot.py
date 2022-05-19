@@ -1,4 +1,4 @@
-import json, discord, os, threading, time, datetime
+import json, discord, os, threading, time, datetime, random
 from discord.ext import commands
 
 uptime=0
@@ -21,18 +21,24 @@ def tick_uptime():
 		time.sleep(0.01)
 
 def format_timedelta(delta):
-    seconds = int(delta.total_seconds())
-    secs_in_a_day = 86400
-    secs_in_a_hour = 3600
-    secs_in_a_min = 60
-    days, seconds = divmod(seconds, secs_in_a_day)
-    hours, seconds = divmod(seconds, secs_in_a_hour)
-    minutes, seconds = divmod(seconds, secs_in_a_min)
-    time_fmt = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
-    if days > 0:
-        suffix = "s" if days > 1 else ""
-        return f"{days} day{suffix} {time_fmt}"
-    return time_fmt
+		seconds = int(delta.total_seconds())
+		secs_in_a_day = 86400
+		secs_in_a_hour = 3600
+		secs_in_a_min = 60
+		days, seconds = divmod(seconds, secs_in_a_day)
+		hours, seconds = divmod(seconds, secs_in_a_hour)
+		minutes, seconds = divmod(seconds, secs_in_a_min)
+		time_fmt = f"{hours:02d}:{minutes:02d}:{seconds:02d}"
+		if days > 0:
+				suffix = "s" if days > 1 else ""
+				return f"{days} day{suffix} {time_fmt}"
+		return time_fmt
+
+def gen_unit_quiz(unit):
+	lessons = quizzes[unit]
+	questions = []
+	for lesson in list(lessons.keys()):questions += lesson
+	return questions
 
 @bot.command(name="help")
 async def command_help(ctx):
@@ -59,16 +65,17 @@ async def command_help(ctx):
 @bot.command(name="register")
 async def command_register(ctx):
 	embed = None
-	if ctx.author.id in user_info:embed = discord.Embed(title=ctx.author.display_name, description="You already have an account! Use t.info to see your info!", color=RED)
+	if str(ctx.author.id) in user_info:embed = discord.Embed(title=ctx.author.display_name, description="You already have an account! Use t.info to see your info!", color=RED)
 	else:
 		embed = discord.Embed(title=ctx.author.display_name, description="Created your account! Use t.info to see your info!", color=GREEN)
-		user_info[ctx.author.id] = {}
-		user_info[ctx.author.id]["Koinsu"] = 0
-		user_info[ctx.author.id]["Correct Questions"] = 0
-		user_info[ctx.author.id]["Incorrect Questions"] = 0
-		user_info[ctx.author.id]["Quizzes Taken"] = 0
-		user_info[ctx.author.id]["Unit Quizzes Taken"] = 0
-		user_info[ctx.author.id]["Grade"] = "0%"
+		user_info[str(ctx.author.id)] = {}
+		user_info[str(ctx.author.id)]["Koinsu"] = 0
+		user_info[str(ctx.author.id)]["Correct Questions"] = 0
+		user_info[str(ctx.author.id)]["Incorrect Questions"] = 0
+		user_info[str(ctx.author.id)]["Quizzes Taken"] = 0
+		user_info[str(ctx.author.id)]["Unit Quizzes Taken"] = 0
+		user_info[str(ctx.author.id)]["Grade"] = "0%"
+		user_info[str(ctx.author.id)]["Units Completed"] = []
 		json.dump(user_info, open("user_info.json", "w"))
 	embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
 	embed.set_thumbnail(url=bot.user.avatar_url)
@@ -76,22 +83,46 @@ async def command_register(ctx):
 	await ctx.send(embed=embed)
 
 @bot.command(name="quiz")
-async def command_quiz(ctx, unit, lesson):
-	pass
+async def command_quiz(ctx, *, unit="", lesson=""):
+	questions = None
+	if str(unit) in quizzes:
+		if str(lesson) in quizzes[unit]:questions = quizzes[unit][lesson]
+		else:
+			lesson = "unit"
+			questions = gen_unit_quiz(unit)
+	else:
+		prev_unit = unit
+		if(len(user_info[str(ctx.author.id)]["Units Completed"]) == 0):unit="1"
+		else:unit = random.choice(user_info[str(ctx.author.id)]["Units Completed"])
+		if str(lesson) in quizzes[unit]:questions = quizzes[unit][lesson]
+		elif str(prev_unit) in quizzes[unit]:
+			lesson = prev_unit
+			questions = quizzes[unit][prev_unit]
+		else:
+			lesson = "unit"
+			questions = gen_unit_quiz(unit)
+	if lesson=="unit":embed = discord.Embed(title=f"Started a quiz for Unit {unit}!", description=f"This is the unit quiz for Unit {unit}!", color=BLUE)
+	else:embed = discord.Embed(title=f"Started a quiz for Unit {unit}!", description=f"This is quiz '{lesson}' for Unit {unit}!", color=BLUE)
+	embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+	embed.set_thumbnail(url=bot.user.avatar_url)
+	embed.set_footer(text=f"Requested by '{ctx.author}'")
+	await ctx.send(embed=embed)
 
 @bot.command(name="info")
 async def command_info(ctx):
-	if ctx.author.id in user_info:
+	if str(ctx.author.id) in user_info:
 		embed = discord.Embed(title=ctx.author.display_name, description="This is all your user info!", color=GREEN)
 		embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
 		embed.set_thumbnail(url=bot.user.avatar_url)
 		embed.set_footer(text=f"Requested by '{ctx.author}'")
-		embed.add_field(name="Koinsu", value=user_info[ctx.author.id]["Koinsu"])
-		embed.add_field(name="Correct Questions", value=user_info[ctx.author.id]["Correct Questions"])
-		embed.add_field(name="Incorrect Questions", value=user_info[ctx.author.id]["Incorrect Questions"])
-		embed.add_field(name="Quizzes Taken", value=user_info[ctx.author.id]["Quizzes Taken"])
-		embed.add_field(name="Unit Quizzes Taken", value=user_info[ctx.author.id]["Unit Quizzes Taken"])
-		embed.add_field(name="Grade", value=user_info[ctx.author.id]["Grade"])
+		embed.add_field(name="Koinsu", value=user_info[str(ctx.author.id)]["Koinsu"])
+		embed.add_field(name="Correct Questions", value=user_info[str(ctx.author.id)]["Correct Questions"])
+		embed.add_field(name="Incorrect Questions", value=user_info[str(ctx.author.id)]["Incorrect Questions"])
+		embed.add_field(name="Quizzes Taken", value=user_info[str(ctx.author.id)]["Quizzes Taken"])
+		embed.add_field(name="Unit Quizzes Taken", value=user_info[str(ctx.author.id)]["Unit Quizzes Taken"])
+		if(len(user_info[str(ctx.author.id)]["Units Completed"]) == 0):embed.add_field(name="Units Completed", value="No Units Completed")
+		else:embed.add_field(name="Units Completed", value=', '.join(user_info[str(ctx.author.id)]["Units Completed"]))
+		embed.add_field(name="Grade", value=user_info[str(ctx.author.id)]["Grade"])
 		await ctx.send(embed=embed)
 	else:
 		embed = discord.Embed(title=ctx.author.display_name, description = "You do not have an account, use t.register to create one!", color=RED)
