@@ -37,7 +37,7 @@ def format_timedelta(delta):
 def gen_unit_quiz(unit):
 	lessons = quizzes[unit]
 	questions = []
-	for lesson in list(lessons.keys()):questions += lesson
+	for lesson in list(lessons.keys()):questions += lessons[lesson]
 	return questions
 
 @bot.command(name="help")
@@ -83,10 +83,13 @@ async def command_register(ctx):
 	await ctx.send(embed=embed)
 
 @bot.command(name="quiz")
-async def command_quiz(ctx, *, unit="", lesson=""):
+async def command_quiz(ctx, *, unit_and_lesson=""):
 	questions = None
+	sections = unit_and_lesson.split()
+	unit = sections[0]
+	lesson = sections[1]
 	if str(unit) in quizzes:
-		if str(lesson) in quizzes[unit]:questions = quizzes[unit][lesson]
+		if str(lesson) in quizzes[str(unit)]:questions = quizzes[str(unit)][str(lesson)]
 		else:
 			lesson = "unit"
 			questions = gen_unit_quiz(unit)
@@ -94,13 +97,14 @@ async def command_quiz(ctx, *, unit="", lesson=""):
 		prev_unit = unit
 		if(len(user_info[str(ctx.author.id)]["Units Completed"]) == 0):unit="1"
 		else:unit = random.choice(user_info[str(ctx.author.id)]["Units Completed"])
-		if str(lesson) in quizzes[unit]:questions = quizzes[unit][lesson]
+		if str(lesson) in quizzes[str(unit)]:questions = quizzes[str(unit)][str(lesson)]
 		elif str(prev_unit) in quizzes[unit]:
 			lesson = prev_unit
-			questions = quizzes[unit][prev_unit]
+			questions = quizzes[str(unit)][str(prev_unit)]
 		else:
 			lesson = "unit"
 			questions = gen_unit_quiz(unit)
+	print(questions)
 	if lesson=="unit":embed = discord.Embed(title=f"Started a quiz for Unit {unit}!", description=f"This is the unit quiz for Unit {unit}!", color=BLUE)
 	else:embed = discord.Embed(title=f"Started a quiz for Unit {unit}!", description=f"This is quiz '{lesson}' for Unit {unit}!", color=BLUE)
 	embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
