@@ -30,20 +30,45 @@ def gen_unit_quiz(unit):
 	for lesson in list(lessons.keys()):questions += lessons[lesson]
 	return questions
 
-async def command_help(bot, ctx):
+async def command_help(bot, ctx, command=""):
 	file = open("help.txt")
 	content = file.readlines();
 	file.close()
-	embed = discord.Embed(title=f"{bot.user.display_name} Commands", description=f"List of usable commands for {bot.user.display_name}", color=BLUE)
-	embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
-	embed.set_thumbnail(url=bot.user.avatar_url)
-	for line in content:
-		sections = line.split(" - ")
-		title = sections[0]
-		message = sections[1]
-		embed.add_field(name=title, value=message)
-	embed.set_footer(text=f"Requested by '{ctx.author}'")
-	await ctx.send(embed=embed)
+	if command == "":
+		embed = discord.Embed(title=f"{bot.user.display_name} Commands", description=f"List of usable commands for {bot.user.display_name}", color=BLUE)
+		embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+		embed.set_thumbnail(url=bot.user.avatar_url)
+		for line in content:
+			sections = line.split(" - ")
+			title = sections[0]
+			message = sections[1]
+			embed.add_field(name=title, value=message)
+		embed.set_footer(text=f"Requested by '{ctx.author}'")
+		await ctx.send(embed=embed)
+	else:
+		embed = discord.Embed(title=f"{bot.user.display_name} Command", description=f"Info on the 't.{command}' command", color=BLUE)
+		embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+		embed.set_thumbnail(url=bot.user.avatar_url)
+
+		added = False
+		
+		for line in content:
+			sections = line.split(" - ")
+			title = sections[0].replace("t.", "")
+			message = sections[1]
+			if title == command:
+				embed.add_field(name="Usage / Definition", value=message)
+				added = True
+				break
+		embed.set_footer(text=f"Requested by '{ctx.author}'")
+
+		if not added:
+			embed = discord.Embed(title=f"Invalid Command", description=f"The '{command}' command does not exist!", color=RED)
+			embed.set_author(name=ctx.author.display_name, icon_url=ctx.author.avatar_url)
+			embed.set_thumbnail(url=bot.user.avatar_url)
+			embed.set_footer(text=f"Requested by '{ctx.author}'")
+			await ctx.send(embed=embed)
+		else:await ctx.send(embed=embed)
 
 async def command_register(bot, ctx):
 	embed = None
@@ -143,8 +168,6 @@ async def command_uptime(bot, ctx):
 	embed.set_thumbnail(url=bot.user.avatar_url)
 	embed.set_footer(text=f"Requested by '{ctx.author}'")
 	await ctx.send(embed=embed)
-
-async def command_configure(ctx):pass
 
 async def on_message(bot, message):
 	if message.author == bot.user:return

@@ -5,10 +5,10 @@ bot = commands.Bot("t.", activity=discord.Game(name="t.help"))
 bot.remove_command('help')
 
 @bot.command(name="help")
-async def command_help(ctx):
+async def command_help(ctx, *, command=""):
 	os.system("clear")
 	import bot_commands
-	await bot_commands.command_help(bot, ctx)
+	await bot_commands.command_help(bot, ctx, command)
 	if "bot_commands" in sys.modules:del sys.modules["bot_commands"]
 
 @bot.command(name="register")
@@ -44,14 +44,6 @@ async def command_github(ctx):
 	os.system("clear")
 	import bot_commands
 	await bot_commands.command_source(bot, ctx)
-	if "bot_commands" in sys.modules:del sys.modules["bot_commands"]
-
-@bot.command(name="configure")
-@commands.has_any_role("Programmers", "Mods")
-async def command_configure(ctx):
-	os.system("clear")
-	import bot_commands
-	await bot_commands.command_configure(bot, ctx)
 	if "bot_commands" in sys.modules:del sys.modules["bot_commands"]
 
 @bot.event

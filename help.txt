@@ -1,4 +1,4 @@
-t.help - Displays this message!
+t.help - Shows the list of usable commands!
 t.register - Creates an account to save your data from quizzes!
 t.quiz - Starts a quiz that lets you earn Koinsu for correct answers!
 t.info - Shows the user's data, only works if you have registered an account (see t.register)!
